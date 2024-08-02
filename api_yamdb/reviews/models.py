@@ -49,11 +49,6 @@ class Title(models.Model):
                                        'больше текущего года'))
         ]
     )
-    rating = models.IntegerField(
-        'Рейтинг',
-        validators=[MinValueValidator(1),
-                    MaxValueValidator(10)]
-    )
     description = models.TextField(blank=True, verbose_name='Описание')
     genre = models.ManyToManyField(Genres, through='GenreTitle',
                                    verbose_name='жанр')
@@ -124,7 +119,7 @@ class Comment(models.Model):
         'Дата публикации',
         auto_now_add=True)
     review = models.ForeignKey(Review, on_delete=models.CASCADE,
-                               verbose_name='Отзыв')
+                               verbose_name='Отзыв', related_name='comments')
 
     class Meta:
         verbose_name = 'Комментарий'
