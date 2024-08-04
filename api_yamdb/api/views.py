@@ -4,7 +4,7 @@ from .serializers import CommentSerializer, TitleSerializer, ReviewSerializer
 from reviews.models import Review, Title
 
 
-class TitleViewsSet(viewsets.ModelViewSet):
+class TitleViewSet(viewsets.ModelViewSet):
     serializer_class = TitleSerializer
     queryset = Title.objects.all()
 
