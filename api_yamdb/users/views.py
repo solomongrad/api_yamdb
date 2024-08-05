@@ -2,10 +2,11 @@ from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import permissions, status
-from .serializers import SignupSerializer, TokenSerializer, MyUserSerializer
-from .utils import generate_code, send_confirmation_code
+from rest_framework import filters, permissions, status
 from .mixins import CreateListViewSet, RetrieveUpdateDeleteViewSet
+from .serializers import SignupSerializer, TokenSerializer, MyUserSerializer
+from .permissions import IsAdminOrSuperuser
+from .utils import generate_code, send_confirmation_code
 
 User = get_user_model()
 
@@ -66,16 +67,17 @@ class MeAPIView(APIView):
 class UserViewSet(CreateListViewSet):
     queryset = User.objects.all()
     serializer_class = MyUserSerializer
-    permission_classes = (permissions.IsAdminUser,)
+    permission_classes = (IsAdminOrSuperuser,)
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('username',)
 
 
 class UsernameViewSet(RetrieveUpdateDeleteViewSet):
     serializer_class = MyUserSerializer
-    permission_classes = (permissions.IsAdminUser,)
+    permission_classes = (IsAdminOrSuperuser,)
 
     def get_queryset(self):
         username = self.kwargs.get('username')
-        print(username)
         user = get_object_or_404(User, username=username)
         return user
 
