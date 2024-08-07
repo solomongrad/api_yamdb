@@ -1,9 +1,8 @@
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
-from rest_framework.decorators import action
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import filters, mixins, permissions, status, viewsets
+from rest_framework import filters, permissions, status
 from .mixins import CreateListViewSet, RetrieveUpdateDeleteViewSet
 from .serializers import SignupSerializer, TokenSerializer, MyUserSerializer
 from .permissions import IsAdmin
