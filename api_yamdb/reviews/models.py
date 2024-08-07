@@ -45,7 +45,7 @@ class Title(models.Model):
                               message=('Значение года выпуска не может '
                                        'быть отрицательным')),
             MaxValueValidator(int(datetime.now().year),
-                              message=('Значение года выпууска не может быть '
+                              message=('Значение года выпуска не может быть '
                                        'больше текущего года'))
         ]
     )
