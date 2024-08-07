@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import serializers
 from .models import CHOICES
-from .utils import generate_code, send_confirmation_code
+from .utils import send_confirmation_code
 
 User = get_user_model()
 
@@ -21,10 +21,7 @@ class SignupSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 'Использовать имя me в качестве username запрещено.')
         user = User.objects.create_user(email=email, username=username)
-        confirmation_code = generate_code()
-        send_confirmation_code(confirmation_code, email)
-        user.confirmation_code = confirmation_code
-        user.save()
+        send_confirmation_code(user, email)
         return user
 
 
@@ -51,7 +48,7 @@ class TokenSerializer(serializers.Serializer):
 
 
 class MyUserSerializer(serializers.ModelSerializer):
-    role = serializers.ChoiceField(choices=CHOICES)
+    role = serializers.ChoiceField(choices=CHOICES, required=False)
 
     class Meta:
         model = User
@@ -64,14 +61,11 @@ class MyUserSerializer(serializers.ModelSerializer):
             'role'
         )
 
-    def to_representation(self, instance):
-        representation = super().to_representation(instance)
-        request = self.context.get('request')
-        if request.method == 'PATCH' and not instance.is_staff:
-            representation.pop('role')
-        return representation
-
     def update(self, instance, validated_data):
-        if not instance.is_staff:
+        request = self.context.get('request')
+        if not request.user.is_admin():
             validated_data.pop('role', None)
+        if validated_data.get('username') == 'me':
+            raise serializers.ValidationError(
+                'Использовать имя me в качестве username запрещено.')
         return super().update(instance, validated_data)

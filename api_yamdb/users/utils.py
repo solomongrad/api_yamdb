@@ -9,7 +9,8 @@ def generate_code():
     return result
 
 
-def send_confirmation_code(confirmation_code, email):
+def send_confirmation_code(user, email):
+    confirmation_code = generate_code()
     send_mail(
         subject='Код подтверждения',
         message=f'Ваш код подтверждения: {confirmation_code}',
@@ -17,3 +18,5 @@ def send_confirmation_code(confirmation_code, email):
         recipient_list=[f'{email}'],
         fail_silently=True,
     )
+    user.confirmation_code = confirmation_code
+    user.save()

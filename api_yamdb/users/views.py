@@ -6,7 +6,7 @@ from rest_framework import filters, permissions, status
 from .mixins import CreateListViewSet, RetrieveUpdateDeleteViewSet
 from .serializers import SignupSerializer, TokenSerializer, MyUserSerializer
 from .permissions import IsAdmin
-from .utils import generate_code, send_confirmation_code
+from .utils import send_confirmation_code
 
 User = get_user_model()
 
@@ -19,18 +19,13 @@ class SignupAPIView(APIView):
         username = request.data.get('username')
         user = User.objects.filter(email=email).first()
         if user and username == user.username:
-            confirmation_code = generate_code()
-            send_confirmation_code(confirmation_code, email)
-            user.confirmation_code = confirmation_code
-            user.save()
-            return Response(
-                {'detail':
-                 'Код подтверждения отправлен повторно.'},
-                status=status.HTTP_200_OK)
+            send_confirmation_code(user, email)
+            return Response({'email': email, 'username': username},
+                            status=status.HTTP_200_OK)
         serializer = SignupSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
