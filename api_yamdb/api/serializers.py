@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import serializers
-from .models import CHOICES
+from users.models import CHOICES
 from .utils import send_confirmation_code
 
 User = get_user_model()

@@ -3,7 +3,7 @@ from rest_framework.routers import DefaultRouter
 from .views import (SignupAPIView, TokenAPIView, UserViewSet,
                     MeAPIView, UsernameViewSet)
 
-app_name = 'users'
+app_name = 'api'
 
 router = DefaultRouter()
 router.register('users', UserViewSet, basename='users')
