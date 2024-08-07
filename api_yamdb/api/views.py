@@ -1,11 +1,17 @@
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import filters, permissions, status
+from rest_framework import filters, mixins, permissions, status, viewsets
+from reviews.models import Title, Category, Genre
+from .filters import TitleFilter
 from .mixins import CreateListViewSet, RetrieveUpdateDeleteViewSet
-from .serializers import SignupSerializer, TokenSerializer, MyUserSerializer
-from .permissions import IsAdmin
+from .serializers import (SignupSerializer, TokenSerializer,
+                          MyUserSerializer, TitleSerializer,
+                          TitleGETSerializer, CategorySerializer,
+                          GenreSerializer)
+from .permissions import IsAdmin, ReadonlyOrAdmin, ReadonlyOrOwnerOrStaff
 from .utils import send_confirmation_code
 
 User = get_user_model()
@@ -72,3 +78,38 @@ class UsernameViewSet(RetrieveUpdateDeleteViewSet):
     serializer_class = MyUserSerializer
     permission_classes = (IsAdmin,)
     lookup_field = 'username'
+
+
+class TitleViewSet(viewsets.ModelViewSet):
+    queryset = Title.objects.all()
+    permission_classes = (ReadonlyOrAdmin,)
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = TitleFilter
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return TitleGETSerializer
+        return TitleSerializer
+
+
+class ListCreateDestroyViewSet(mixins.ListModelMixin,
+                               mixins.CreateModelMixin,
+                               mixins.DestroyModelMixin,
+                               viewsets.GenericViewSet):
+    pass
+
+
+class CategoryViewSet(ListCreateDestroyViewSet):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = (ReadonlyOrAdmin,)
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name',)
+
+
+class GenreViewSet(ListCreateDestroyViewSet):
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
+    permission_classes = (ReadonlyOrAdmin,)
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name',)
