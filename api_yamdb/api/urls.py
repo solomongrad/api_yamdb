@@ -1,6 +1,5 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
-<<<<<<< HEAD
 from .views import (SignupAPIView, TokenAPIView, UserViewSet,
                     MeAPIView, UsernameViewSet, TitleViewSet,
                     CategoryViewSet, GenreViewSet)
