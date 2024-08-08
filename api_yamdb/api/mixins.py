@@ -1,5 +1,4 @@
-from rest_framework import mixins, viewsets
-from rest_framework import filters
+from rest_framework import mixins, viewsets, filters
 
 from .permissions import ReadonlyOrAdmin
 
@@ -16,12 +15,7 @@ class RetrieveUpdateDeleteViewSet(mixins.RetrieveModelMixin,
     pass
 
 
-class PutExclude(mixins.ListModelMixin,
-                 mixins.CreateModelMixin,
-                 mixins.DestroyModelMixin,
-                 mixins.UpdateModelMixin,
-                 mixins.RetrieveModelMixin,
-                 viewsets.GenericViewSet):
+class PutExclude(viewsets.ModelViewSet):
     http_method_names = ["get", "post", "patch", "delete"]
 
 

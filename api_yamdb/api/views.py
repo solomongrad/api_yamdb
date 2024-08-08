@@ -82,7 +82,6 @@ class UsernameViewSet(RetrieveUpdateDeleteViewSet):
 
 
 class TitleViewSet(PutExclude):
-    http_method_names = ['get', 'post', 'patch', 'delete']
     queryset = Title.objects.all()
     permission_classes = (ReadonlyOrAdmin,)
     filter_backends = (DjangoFilterBackend,)
