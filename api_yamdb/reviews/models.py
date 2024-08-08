@@ -6,15 +6,9 @@ from django.db import models
 User = get_user_model()
 
 
-<<<<<<< HEAD
-class Genre(models.Model):
-    name = models.CharField(max_length=256, verbose_name='Название')
-    slug = models.SlugField(unique=True, max_length=50, verbose_name='slug')
-=======
 class Genres(models.Model):
     name = models.CharField(max_length=256, verbose_name='Название')
     slug = models.SlugField(unique=True, verbose_name='slug')
->>>>>>> feature/api
 
     class Meta:
         verbose_name = 'Жанр'
@@ -25,15 +19,9 @@ class Genres(models.Model):
         return self.name
 
 
-<<<<<<< HEAD
-class Category(models.Model):
-    name = models.CharField(max_length=256, verbose_name='Название')
-    slug = models.SlugField(unique=True, max_length=50, verbose_name='slug')
-=======
 class Categories(models.Model):
     name = models.CharField(max_length=256, verbose_name='Название')
     slug = models.SlugField(unique=True, verbose_name='slug')
->>>>>>> feature/api
 
     class Meta:
         verbose_name = 'Категория'
