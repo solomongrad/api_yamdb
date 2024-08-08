@@ -3,7 +3,8 @@ from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import serializers
-from reviews.models import Title, Category, Genre
+from rest_framework.relations import SlugRelatedField
+from reviews.models import Title, Category, Genre, Review, Comment
 from users.models import CHOICES
 from .utils import send_confirmation_code
 
@@ -96,9 +97,7 @@ class TitleGETSerializer(serializers.ModelSerializer):
 
     def get_rating(self, obj):
         rating = obj.reviews.aggregate(Avg('score'))['score__avg']
-        if rating:
-            return int(rating)
-        return None
+        return rating
 
 
 class TitleSerializer(serializers.ModelSerializer):
@@ -115,3 +114,29 @@ class TitleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Title
         fields = ('name', 'year', 'description', 'genre', 'category')
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    author = SlugRelatedField(
+        default=serializers.CurrentUserDefault(),
+        read_only=True,
+        slug_field='username'
+    )
+
+    class Meta:
+        fields = '__all__'
+        model = Review
+        read_only_fields = ('author', 'title',)
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    author = SlugRelatedField(
+        default=serializers.CurrentUserDefault(),
+        read_only=True,
+        slug_field='username'
+    )
+
+    class Meta:
+        fields = '__all__'
+        model = Comment
+        read_only_fields = ('author', 'review',)
