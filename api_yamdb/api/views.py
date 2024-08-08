@@ -82,6 +82,7 @@ class UsernameViewSet(RetrieveUpdateDeleteViewSet):
 
 
 class TitleViewSet(PutExclude):
+    http_method_names = ['get', 'post', 'patch', 'delete']
     queryset = Title.objects.all()
     permission_classes = (ReadonlyOrAdmin,)
     filter_backends = (DjangoFilterBackend,)
@@ -96,19 +97,11 @@ class TitleViewSet(PutExclude):
 class CategoryViewSet(ListCreateDestroyViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = (ReadonlyOrAdmin,)
-    filter_backends = (filters.SearchFilter,)
-    search_fields = ('name',)
-    lookup_field = 'slug'
 
 
 class GenreViewSet(ListCreateDestroyViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
-    permission_classes = (ReadonlyOrAdmin,)
-    filter_backends = (filters.SearchFilter,)
-    search_fields = ('name',)
-    lookup_field = 'slug'
 
 
 class ReviewViewSet(PutExclude):
