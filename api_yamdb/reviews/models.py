@@ -6,7 +6,7 @@ from django.db import models
 User = get_user_model()
 
 
-class Genres(models.Model):
+class Genre(models.Model):
     name = models.CharField(max_length=256, verbose_name='Название')
     slug = models.SlugField(unique=True, verbose_name='slug')
 
@@ -19,7 +19,7 @@ class Genres(models.Model):
         return self.name
 
 
-class Categories(models.Model):
+class Category(models.Model):
     name = models.CharField(max_length=256, verbose_name='Название')
     slug = models.SlugField(unique=True, verbose_name='slug')
 
