@@ -11,3 +11,19 @@ class RetrieveUpdateDeleteViewSet(mixins.RetrieveModelMixin,
                                   mixins.DestroyModelMixin,
                                   viewsets.GenericViewSet):
     pass
+
+
+class PutExclude(mixins.ListModelMixin,
+                 mixins.CreateModelMixin,
+                 mixins.DestroyModelMixin,
+                 mixins.UpdateModelMixin,
+                 mixins.RetrieveModelMixin,
+                 viewsets.GenericViewSet):
+    http_method_names = ["get", "post", "patch", "delete"]
+
+
+class ListCreateDestroyViewSet(mixins.ListModelMixin,
+                               mixins.CreateModelMixin,
+                               mixins.DestroyModelMixin,
+                               viewsets.GenericViewSet):
+    pass

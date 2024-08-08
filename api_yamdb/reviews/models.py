@@ -106,7 +106,7 @@ class Review(models.Model):
         ordering = ('-pub_date',)
         constraints = (
             models.UniqueConstraint(
-                fields=['author', 'title'],
+                fields=('author', 'title',),
                 name='unique_author_title'
             ),
         )

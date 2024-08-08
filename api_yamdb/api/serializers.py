@@ -113,7 +113,7 @@ class TitleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Title
-        fields = ('name', 'year', 'description', 'genre', 'category')
+        fields = ('id', 'name', 'year', 'description', 'genre', 'category')
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -127,6 +127,16 @@ class ReviewSerializer(serializers.ModelSerializer):
         fields = '__all__'
         model = Review
         read_only_fields = ('author', 'title',)
+
+    def validate(self, data):
+        if self.context['request'].method == 'POST':
+            user = self.context['request'].user
+            title_id = self.context['view'].kwargs.get('title_id')
+            if Review.objects.filter(
+                author_id=user.id, title_id=title_id
+            ).exists():
+                raise serializers.ValidationError('Вы уже оставили отзыв')
+        return data
 
 
 class CommentSerializer(serializers.ModelSerializer):

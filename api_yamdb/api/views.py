@@ -3,10 +3,11 @@ from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import filters, mixins, permissions, status, viewsets
+from rest_framework import filters, permissions, status
 from reviews.models import Title, Category, Genre, Review
 from .filters import TitleFilter
-from .mixins import CreateListViewSet, RetrieveUpdateDeleteViewSet
+from .mixins import (CreateListViewSet, RetrieveUpdateDeleteViewSet,
+                     PutExclude, ListCreateDestroyViewSet)
 from .serializers import (SignupSerializer, TokenSerializer,
                           MyUserSerializer, TitleSerializer,
                           TitleGETSerializer, CategorySerializer,
@@ -80,7 +81,7 @@ class UsernameViewSet(RetrieveUpdateDeleteViewSet):
     lookup_field = 'username'
 
 
-class TitleViewSet(viewsets.ModelViewSet):
+class TitleViewSet(PutExclude):
     queryset = Title.objects.all()
     permission_classes = (ReadonlyOrAdmin,)
     filter_backends = (DjangoFilterBackend,)
@@ -92,19 +93,13 @@ class TitleViewSet(viewsets.ModelViewSet):
         return TitleSerializer
 
 
-class ListCreateDestroyViewSet(mixins.ListModelMixin,
-                               mixins.CreateModelMixin,
-                               mixins.DestroyModelMixin,
-                               viewsets.GenericViewSet):
-    pass
-
-
 class CategoryViewSet(ListCreateDestroyViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = (ReadonlyOrAdmin,)
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
+    lookup_field = 'slug'
 
 
 class GenreViewSet(ListCreateDestroyViewSet):
@@ -113,11 +108,12 @@ class GenreViewSet(ListCreateDestroyViewSet):
     permission_classes = (ReadonlyOrAdmin,)
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
+    lookup_field = 'slug'
 
 
-class ReviewViewSet(viewsets.ModelViewSet):
+class ReviewViewSet(PutExclude):
     serializer_class = ReviewSerializer
-    # permission_classes = None
+    permission_classes = (ReadonlyOrOwnerOrStaff,)
 
     def get_title(self):
         return get_object_or_404(Title, pk=self.kwargs.get('title_id'))
@@ -130,9 +126,9 @@ class ReviewViewSet(viewsets.ModelViewSet):
         serializer.save(title=self.get_title(), author=user)
 
 
-class CommentViewSet(viewsets.ModelViewSet):
+class CommentViewSet(PutExclude):
     serializer_class = CommentSerializer
-    # permission_classes = None
+    permission_classes = (ReadonlyOrOwnerOrStaff,)
 
     def get_review(self):
         return get_object_or_404(Review, pk=self.kwargs.get('review_id'))
