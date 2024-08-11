@@ -70,6 +70,7 @@ class GenreTitle(models.Model):
 
 
 class Review(models.Model):
+    """Модель отзыва к произведению"""
     text = models.TextField(verbose_name='Текст')
     author = models.ForeignKey(User,
                                on_delete=models.CASCADE,
@@ -100,6 +101,7 @@ class Review(models.Model):
     )
 
     class Meta:
+        """Мета класс к отзыву"""
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
         ordering = ('-pub_date',)
@@ -115,6 +117,7 @@ class Review(models.Model):
 
 
 class Comment(models.Model):
+    """Модель Комментария"""
     text = models.TextField(verbose_name='Текст')
     author = models.ForeignKey(User,
                                on_delete=models.CASCADE,
@@ -127,6 +130,7 @@ class Comment(models.Model):
                                verbose_name='Отзыв', related_name='comments')
 
     class Meta:
+        """Мета класс Комментария"""
         verbose_name = 'Комментарий'
         verbose_name_plural = 'Комментарии'
         ordering = ('-pub_date',)
