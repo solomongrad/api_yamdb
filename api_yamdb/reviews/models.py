@@ -74,7 +74,7 @@ class GenreTitle(models.Model):
         ordering = ('id',)
 
     def __str__(self):
-        return f'{self.genre}'
+        return f'жанр/ы произведения "{self.title}": {self.genre}'
 
 
 class Review(models.Model):

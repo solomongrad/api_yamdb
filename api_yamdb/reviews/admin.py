@@ -1,16 +1,45 @@
 from django.contrib import admin
 from django.db.models import Avg
 
-from .models import Title, Category, Genre, Comment, Review
+from .models import Title, Category, Genre, Comment, Review, GenreTitle
 
 
+@admin.register(Genre)
+class GenreAdmin(admin.ModelAdmin):
+    list_display = (
+        'pk',
+        'name',
+        'slug',
+    )
+    prepopulated_fields = {'slug': ('name',)}
+    list_filter = ('name',)
+    search_fields = ('name',)
+
+
+@admin.register(Category)
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = (
+        'pk',
+        'name',
+        'slug',
+    )
+    prepopulated_fields = {'slug': ('name',)}
+    list_filter = ('name',)
+    search_fields = ('name',)
+
+
+@admin.register(Title)
 class TitleAdmin(admin.ModelAdmin):
 
     def get_genre(self, object):
         """Получает жанр или список жанров произведения."""
-        return '\n'.join((genre.name for genre in object.genre.all()))
+        genre_list = object.genre.get_queryset()
+        genre_str = ''
+        for genre in genre_list:
+            genre_str += ', ' + genre.name
+        return genre_str.lstrip(', ')
 
-    get_genre.short_description = 'Жанры произведения'
+    get_genre.short_description = 'Жанр/ы произведения'
 
     def count_reviews(self, object):
         """Вычисляет количество отзывов на произведение."""
@@ -21,9 +50,9 @@ class TitleAdmin(admin.ModelAdmin):
     def get_rating(self, object):
         """Вычисляет рейтинг произведения."""
         rating = object.reviews.aggregate(average_score=Avg('score'))
-        if rating:
-            return round(rating.get('average_score'))
-        return None
+        if rating.get('average_score') == None:
+            return None
+        return round(rating.get('average_score'))
 
     get_rating.short_description = 'Рейтинг'
 
@@ -37,9 +66,19 @@ class TitleAdmin(admin.ModelAdmin):
         'count_reviews',
         'get_rating'
     )
-    empty_value_display = 'значение отсутствует'
     list_filter = ('name',)
     search_fields = ('name', 'year', 'category')
+
+
+@admin.register(GenreTitle)
+class GenreTitleAdmin(admin.ModelAdmin):
+    list_display = (
+        'pk',
+        'genre',
+        'title',
+    )
+    list_filter = ('genre',)
+    search_fields = ('title',)
 
 
 class ReviewAdmin(admin.ModelAdmin):
@@ -52,7 +91,6 @@ class ReviewAdmin(admin.ModelAdmin):
                     )
     search_fields = ('title__name', 'text')
     list_filter = ('title',)
-    empty_value_display = 'значение отсутствует'
     list_editable = ('text', 'author', 'score')
 
 
@@ -65,13 +103,9 @@ class CommentAdmin(admin.ModelAdmin):
                     )
     search_fields = ('text', 'review__text')
     list_filter = ('review',)
-    empty_value_display = 'значение отсутствует'
     list_editable = ('text', 'author')
 
 
-admin.site.register(Category)
-admin.site.register(Genre)
-admin.site.register(Title, TitleAdmin)
 admin.site.register(Comment, CommentAdmin)
 admin.site.register(Review, ReviewAdmin)
-admin.site.empty_value_display = 'Не задано'
+admin.site.empty_value_display = 'значение отсутствует'
