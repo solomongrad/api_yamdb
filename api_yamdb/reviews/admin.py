@@ -1,7 +1,8 @@
 from django.contrib import admin
 from django.db.models import Avg
 
-from .models import Title, Category, Genre
+from .models import Title, Category, Genre, Comment, Review
+
 
 class TitleAdmin(admin.ModelAdmin):
 
@@ -9,7 +10,7 @@ class TitleAdmin(admin.ModelAdmin):
         """Получает жанр или список жанров произведения."""
         return '\n'.join((genre.name for genre in object.genre.all()))
 
-    get_genre.short_description = 'Жанр/ы произведения'
+    get_genre.short_description = 'Жанры произведения'
 
     def count_reviews(self, object):
         """Вычисляет количество отзывов на произведение."""
@@ -41,7 +42,36 @@ class TitleAdmin(admin.ModelAdmin):
     search_fields = ('name', 'year', 'category')
 
 
+class ReviewAdmin(admin.ModelAdmin):
+    list_display = ('pk',
+                    'title',
+                    'text',
+                    'author',
+                    'score',
+                    'pub_date'
+                    )
+    search_fields = ('title__name', 'text')
+    list_filter = ('title',)
+    empty_value_display = 'значение отсутствует'
+    list_editable = ('text', 'author', 'score')
+
+
+class CommentAdmin(admin.ModelAdmin):
+    list_display = ('pk',
+                    'text',
+                    'review',
+                    'author',
+                    'pub_date'
+                    )
+    search_fields = ('text', 'review__text')
+    list_filter = ('review',)
+    empty_value_display = 'значение отсутствует'
+    list_editable = ('text', 'author')
+
+
 admin.site.register(Category)
 admin.site.register(Genre)
 admin.site.register(Title, TitleAdmin)
+admin.site.register(Comment, CommentAdmin)
+admin.site.register(Review, ReviewAdmin)
 admin.site.empty_value_display = 'Не задано'
