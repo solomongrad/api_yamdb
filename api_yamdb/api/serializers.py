@@ -117,6 +117,7 @@ class TitleSerializer(serializers.ModelSerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
+    """Сериализатор Отзыва"""
     author = SlugRelatedField(
         default=serializers.CurrentUserDefault(),
         read_only=True,
@@ -129,6 +130,7 @@ class ReviewSerializer(serializers.ModelSerializer):
         read_only_fields = ('author', 'title',)
 
     def validate(self, data):
+        """Валидация отзыва"""
         if self.context['request'].method == 'POST':
             user = self.context['request'].user
             title_id = self.context['view'].kwargs.get('title_id')
@@ -140,6 +142,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
+    """Сериализатор Комментария"""
     author = SlugRelatedField(
         default=serializers.CurrentUserDefault(),
         read_only=True,
