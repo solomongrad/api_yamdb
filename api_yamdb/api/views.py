@@ -9,7 +9,7 @@ from .filters import TitleFilter
 from .mixins import (CreateListViewSet, RetrieveUpdateDeleteViewSet,
                      PutExclude, ListCreateDestroyViewSet)
 from .serializers import (SignupSerializer, TokenSerializer,
-                          MyUserSerializer, TitleSerializer,
+                          UserSerializer, TitleSerializer,
                           TitleGETSerializer, CategorySerializer,
                           GenreSerializer, ReviewSerializer, CommentSerializer)
 from .permissions import IsAdmin, ReadonlyOrAdmin, ReadonlyOrOwnerOrStaff
@@ -51,12 +51,12 @@ class MeAPIView(APIView):
 
     def get(self, request):
         user = get_object_or_404(User, username=request.user.username)
-        serializer = MyUserSerializer(user, context={'request': request})
+        serializer = UserSerializer(user, context={'request': request})
         return Response(serializer.data)
 
     def patch(self, request):
         user = get_object_or_404(User, username=request.user.username)
-        serializer = MyUserSerializer(
+        serializer = UserSerializer(
             user, data=request.data,
             partial=True,
             context={'request': request})
@@ -68,7 +68,7 @@ class MeAPIView(APIView):
 
 class UserViewSet(CreateListViewSet):
     queryset = User.objects.all()
-    serializer_class = MyUserSerializer
+    serializer_class = UserSerializer
     permission_classes = (IsAdmin,)
     filter_backends = (filters.SearchFilter,)
     search_fields = ('username',)
@@ -76,7 +76,7 @@ class UserViewSet(CreateListViewSet):
 
 class UsernameViewSet(RetrieveUpdateDeleteViewSet):
     queryset = User.objects.all()
-    serializer_class = MyUserSerializer
+    serializer_class = UserSerializer
     permission_classes = (IsAdmin,)
     lookup_field = 'username'
 

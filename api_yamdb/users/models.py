@@ -9,7 +9,8 @@ CHOICES = (
 )
 
 
-class MyUser(AbstractUser):
+class User(AbstractUser):
+    """Кастомная модель пользователя"""
     email = models.EmailField(_('email address'), unique=True)
     bio = models.TextField('Биография', blank=True)
     role = models.TextField('Роль', default='user', choices=CHOICES)
