@@ -50,7 +50,7 @@ class TokenSerializer(serializers.Serializer):
             'Неверное имя пользователя или код подтверждения.')
 
 
-class MyUserSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     role = serializers.ChoiceField(choices=CHOICES, required=False)
 
     class Meta:
