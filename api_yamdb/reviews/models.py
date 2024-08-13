@@ -56,12 +56,15 @@ class Title(models.Model):
                                    through='GenreTitle',
                                    verbose_name='жанр')
     category = models.ForeignKey(Category, on_delete=models.SET_NULL,
-                                 null=True, verbose_name='категория')
+                                 null=True, verbose_name='Категория')
 
     class Meta:
         verbose_name = 'Произведение'
         verbose_name_plural = 'Произведения'
         ordering = ('name',)
+
+    def __str__(self):
+        return self.name
 
 
 class GenreTitle(models.Model):
@@ -69,8 +72,13 @@ class GenreTitle(models.Model):
     genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
     title = models.ForeignKey(Title, on_delete=models.CASCADE)
 
+    class Meta:
+        verbose_name = 'Соотношение жанра с произведением'
+        verbose_name_plural = 'Соотношение жанров с произведениями'
+        ordering = ('id',)
+
     def __str__(self):
-        return f'{self.genre}'
+        return f'жанр/ы произведения "{self.title}": {self.genre}'
 
 
 class Review(models.Model):
@@ -117,7 +125,7 @@ class Review(models.Model):
         )
 
     def __str__(self):
-        return self.text
+        return self.text[:15]
 
 
 class Comment(models.Model):
@@ -140,4 +148,4 @@ class Comment(models.Model):
         ordering = ('-pub_date',)
 
     def __str__(self):
-        return self.text
+        return self.text[:15]
