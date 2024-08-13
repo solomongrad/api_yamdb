@@ -1,4 +1,5 @@
 from pathlib import Path
+import os
 from datetime import timedelta
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -92,7 +93,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'ru-RU'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Moscow'
 
 USE_I18N = True
 
@@ -106,6 +107,8 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = ((BASE_DIR / 'static/'),)
+
+CSV_FILES_DIR = os.path.join(BASE_DIR, 'static/data')
 
 AUTH_USER_MODEL = 'users.MyUser'
 
