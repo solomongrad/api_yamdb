@@ -9,7 +9,7 @@ from .filters import TitleFilter
 from .mixins import (CreateListViewSet, RetrieveUpdateDeleteViewSet,
                      PutExclude, ListCreateDestroyViewSet)
 from .serializers import (SignupSerializer, TokenSerializer,
-                          MyUserSerializer, TitleSerializer,
+                          UserSerializer, TitleSerializer,
                           TitleGETSerializer, CategorySerializer,
                           GenreSerializer, ReviewSerializer, CommentSerializer)
 from .permissions import IsAdmin, ReadonlyOrAdmin, ReadonlyOrOwnerOrStaff
@@ -51,12 +51,12 @@ class MeAPIView(APIView):
 
     def get(self, request):
         user = get_object_or_404(User, username=request.user.username)
-        serializer = MyUserSerializer(user, context={'request': request})
+        serializer = UserSerializer(user, context={'request': request})
         return Response(serializer.data)
 
     def patch(self, request):
         user = get_object_or_404(User, username=request.user.username)
-        serializer = MyUserSerializer(
+        serializer = UserSerializer(
             user, data=request.data,
             partial=True,
             context={'request': request})
@@ -68,7 +68,7 @@ class MeAPIView(APIView):
 
 class UserViewSet(CreateListViewSet):
     queryset = User.objects.all()
-    serializer_class = MyUserSerializer
+    serializer_class = UserSerializer
     permission_classes = (IsAdmin,)
     filter_backends = (filters.SearchFilter,)
     search_fields = ('username',)
@@ -76,12 +76,13 @@ class UserViewSet(CreateListViewSet):
 
 class UsernameViewSet(RetrieveUpdateDeleteViewSet):
     queryset = User.objects.all()
-    serializer_class = MyUserSerializer
+    serializer_class = UserSerializer
     permission_classes = (IsAdmin,)
     lookup_field = 'username'
 
 
 class TitleViewSet(PutExclude):
+    """Вьюсет для создания объектов класса Title."""
     queryset = Title.objects.all()
     permission_classes = (ReadonlyOrAdmin,)
     filter_backends = (DjangoFilterBackend,)
@@ -94,16 +95,19 @@ class TitleViewSet(PutExclude):
 
 
 class CategoryViewSet(ListCreateDestroyViewSet):
+    """Вьюсет для создания объектов класса Category."""
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
 
 class GenreViewSet(ListCreateDestroyViewSet):
+    """Вьюсет для создания объектов класса Genre."""
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
 
 
 class ReviewViewSet(PutExclude):
+    """Вьюсет для создания отзывов к произведениям."""
     serializer_class = ReviewSerializer
     permission_classes = (ReadonlyOrOwnerOrStaff,)
 
@@ -119,6 +123,7 @@ class ReviewViewSet(PutExclude):
 
 
 class CommentViewSet(PutExclude):
+    """Вьюсет для создания комментариев к отзывам."""
     serializer_class = CommentSerializer
     permission_classes = (ReadonlyOrOwnerOrStaff,)
 

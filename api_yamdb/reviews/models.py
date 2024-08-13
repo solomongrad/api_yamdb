@@ -7,6 +7,7 @@ User = get_user_model()
 
 
 class Genre(models.Model):
+    """Модель жанров для произведений."""
     name = models.CharField(max_length=256, verbose_name='Название')
     slug = models.SlugField(unique=True, verbose_name='slug')
 
@@ -20,6 +21,7 @@ class Genre(models.Model):
 
 
 class Category(models.Model):
+    """Модель категорий для произведений."""
     name = models.CharField(max_length=256, verbose_name='Название')
     slug = models.SlugField(unique=True, verbose_name='slug')
 
@@ -33,6 +35,7 @@ class Category(models.Model):
 
 
 class Title(models.Model):
+    """Модель произведений."""
     name = models.CharField(
         max_length=256,
         verbose_name='Название'
@@ -62,6 +65,7 @@ class Title(models.Model):
 
 
 class GenreTitle(models.Model):
+    """Модель для связывания жанров и произведений."""
     genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
     title = models.ForeignKey(Title, on_delete=models.CASCADE)
 
@@ -70,6 +74,7 @@ class GenreTitle(models.Model):
 
 
 class Review(models.Model):
+    """Модель отзыва к произведению."""
     text = models.TextField(verbose_name='Текст')
     author = models.ForeignKey(User,
                                on_delete=models.CASCADE,
@@ -100,6 +105,7 @@ class Review(models.Model):
     )
 
     class Meta:
+        """Мета класс к отзыву."""
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
         ordering = ('-pub_date',)
@@ -115,6 +121,7 @@ class Review(models.Model):
 
 
 class Comment(models.Model):
+    """Модель Комментария."""
     text = models.TextField(verbose_name='Текст')
     author = models.ForeignKey(User,
                                on_delete=models.CASCADE,
@@ -127,6 +134,7 @@ class Comment(models.Model):
                                verbose_name='Отзыв', related_name='comments')
 
     class Meta:
+        """Мета класс Комментария"""
         verbose_name = 'Комментарий'
         verbose_name_plural = 'Комментарии'
         ordering = ('-pub_date',)

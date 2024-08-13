@@ -50,7 +50,7 @@ class TokenSerializer(serializers.Serializer):
             'Неверное имя пользователя или код подтверждения.')
 
 
-class MyUserSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     role = serializers.ChoiceField(choices=CHOICES, required=False)
 
     class Meta:
@@ -75,18 +75,21 @@ class MyUserSerializer(serializers.ModelSerializer):
 
 
 class CategorySerializer(serializers.ModelSerializer):
+    """Сериализатор для модели Category."""
     class Meta:
         model = Category
         fields = ('name', 'slug')
 
 
 class GenreSerializer(serializers.ModelSerializer):
+    """Сериализатор для модели Genre."""
     class Meta:
         model = Genre
         fields = ('name', 'slug')
 
 
 class TitleGETSerializer(serializers.ModelSerializer):
+    """Сериализатор для модели Title при GET запросах."""
     rating = serializers.SerializerMethodField()
     genre = GenreSerializer(many=True, read_only=True)
     category = CategorySerializer(read_only=True)
@@ -101,6 +104,7 @@ class TitleGETSerializer(serializers.ModelSerializer):
 
 
 class TitleSerializer(serializers.ModelSerializer):
+    """Сериализатор для модели Title для всех запросов кроме GET."""
     genre = serializers.SlugRelatedField(
         slug_field='slug',
         queryset=Genre.objects.all(),
@@ -117,6 +121,7 @@ class TitleSerializer(serializers.ModelSerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
+    """Сериализатор Отзыва."""
     author = SlugRelatedField(
         default=serializers.CurrentUserDefault(),
         read_only=True,
@@ -129,6 +134,7 @@ class ReviewSerializer(serializers.ModelSerializer):
         read_only_fields = ('author', 'title',)
 
     def validate(self, data):
+        """Валидация отзыва."""
         if self.context['request'].method == 'POST':
             user = self.context['request'].user
             title_id = self.context['view'].kwargs.get('title_id')
@@ -140,6 +146,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
+    """Сериализатор Комментария."""
     author = SlugRelatedField(
         default=serializers.CurrentUserDefault(),
         read_only=True,
