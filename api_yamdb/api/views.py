@@ -82,6 +82,7 @@ class UsernameViewSet(RetrieveUpdateDeleteViewSet):
 
 
 class TitleViewSet(PutExclude):
+    """Вьюсет для создания объектов класса Title."""
     queryset = Title.objects.all()
     permission_classes = (ReadonlyOrAdmin,)
     filter_backends = (DjangoFilterBackend,)
@@ -94,16 +95,19 @@ class TitleViewSet(PutExclude):
 
 
 class CategoryViewSet(ListCreateDestroyViewSet):
+    """Вьюсет для создания объектов класса Category."""
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
 
 class GenreViewSet(ListCreateDestroyViewSet):
+    """Вьюсет для создания объектов класса Genre."""
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
 
 
 class ReviewViewSet(PutExclude):
+    """Вьюсет для создания отзывов к произведениям."""
     serializer_class = ReviewSerializer
     permission_classes = (ReadonlyOrOwnerOrStaff,)
 
@@ -119,6 +123,7 @@ class ReviewViewSet(PutExclude):
 
 
 class CommentViewSet(PutExclude):
+    """Вьюсет для создания комментариев к отзывам."""
     serializer_class = CommentSerializer
     permission_classes = (ReadonlyOrOwnerOrStaff,)
 

@@ -3,6 +3,7 @@ from rest_framework.permissions import SAFE_METHODS
 
 
 class IsAdmin(permissions.BasePermission):
+    """Проверка на то, является ли пользователь администратором."""
 
     def has_permission(self, request, view):
         return (request.user.is_authenticated
@@ -10,6 +11,7 @@ class IsAdmin(permissions.BasePermission):
 
 
 class ReadonlyOrAdmin(permissions.BasePermission):
+    """Проверка на права доступа пользователя."""
 
     def has_permission(self, request, view):
         return (request.method in permissions.SAFE_METHODS
@@ -18,6 +20,7 @@ class ReadonlyOrAdmin(permissions.BasePermission):
 
 
 class ReadonlyOrOwnerOrStaff(permissions.BasePermission):
+    """Проверка на то, является ли пользователь владельцем."""
 
     def has_permission(self, request, view):
         return request.method in SAFE_METHODS or request.user.is_authenticated
