@@ -50,7 +50,7 @@ class TitleAdmin(admin.ModelAdmin):
     def get_rating(self, object):
         """Вычисляет рейтинг произведения."""
         rating = object.reviews.aggregate(average_score=Avg('score'))
-        if rating.get('average_score') == None:
+        if rating.get('average_score') is None:
             return None
         return round(rating.get('average_score'))
 
