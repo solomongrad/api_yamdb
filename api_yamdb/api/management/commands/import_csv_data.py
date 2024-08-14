@@ -60,8 +60,6 @@ def change_foreign_values(data_csv):
 
 def load_csv(file_name, class_name):
     """Загружает csv-файлы в таблицу."""
-    table_not_loaded = f'Таблица {class_name.__qualname__} не загружена.'
-    table_loaded = f'Таблица {class_name.__qualname__} загружена.'
     data = open_csv_file(file_name)
     rows = data[1:]
     for row in rows:
@@ -72,9 +70,9 @@ def load_csv(file_name, class_name):
             table.save()
         except (ValueError, IntegrityError) as error:
             print(f'Ошибка в загружаемых данных. {error}. '
-                  f'{table_not_loaded}')
+                  f'Таблица {class_name.__qualname__} не загружена.')
             break
-    print(table_loaded)
+    print(f'Таблица {class_name.__qualname__} загружена.')
 
 
 class Command(BaseCommand):
