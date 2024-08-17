@@ -89,8 +89,9 @@ class GenreSerializer(serializers.ModelSerializer):
 
 
 class TitleGETSerializer(serializers.ModelSerializer):
-    """Сериализатор для модели Title при GET запросах."""
-    rating = serializers.SerializerMethodField()
+    """Сериализатор для модели Title при безопасных запросах."""
+    rating = serializers.IntegerField(min_value=1, max_value=10,
+                                      default=5, read_only=True)
     genre = GenreSerializer(many=True, read_only=True)
     category = CategorySerializer(read_only=True)
 
@@ -98,18 +99,15 @@ class TitleGETSerializer(serializers.ModelSerializer):
         model = Title
         fields = '__all__'
 
-    def get_rating(self, obj):
-        rating = obj.reviews.aggregate(Avg('score'))['score__avg']
-        return rating
-
 
 class TitleSerializer(serializers.ModelSerializer):
-    """Сериализатор для модели Title для всех запросов кроме GET."""
+    """Сериализатор для модели Title для всех запросов кроме безопасных."""
     genre = serializers.SlugRelatedField(
         slug_field='slug',
         queryset=Genre.objects.all(),
         many=True,
         required=True,
+        allow_empty=False,
     )
     category = serializers.SlugRelatedField(
         slug_field='slug',

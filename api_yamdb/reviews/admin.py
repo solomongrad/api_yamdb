@@ -31,31 +31,6 @@ class CategoryAdmin(admin.ModelAdmin):
 @admin.register(Title)
 class TitleAdmin(admin.ModelAdmin):
 
-    def get_genre(self, object):
-        """Получает жанр или список жанров произведения."""
-        genre_list = object.genre.get_queryset()
-        genre_str = ''
-        for genre in genre_list:
-            genre_str += ', ' + genre.name
-        return genre_str.lstrip(', ')
-
-    get_genre.short_description = 'Жанр/ы произведения'
-
-    def count_reviews(self, object):
-        """Вычисляет количество отзывов на произведение."""
-        return object.reviews.count()
-
-    count_reviews.short_description = 'Количество отзывов'
-
-    def get_rating(self, object):
-        """Вычисляет рейтинг произведения."""
-        rating = object.reviews.aggregate(average_score=Avg('score'))
-        if rating.get('average_score') is None:
-            return None
-        return round(rating.get('average_score'))
-
-    get_rating.short_description = 'Рейтинг'
-
     list_display = (
         'pk',
         'name',
@@ -66,8 +41,35 @@ class TitleAdmin(admin.ModelAdmin):
         'count_reviews',
         'get_rating'
     )
-    list_filter = ('name',)
+    list_display_links = ('pk', 'name',)
+    list_filter = ('category', 'genre')
     search_fields = ('name', 'year', 'category')
+    list_per_page = 20
+    ordering = ('pk',)
+
+    def get_queryset(self, request):
+        return Title.objects.all().select_related(
+            'category'
+        ).prefetch_related('genre').annotate(rating=Avg('reviews__score'))
+
+    @admin.display(description='Жанр/ы произведения')
+    def get_genre(self, title):
+        """Получает жанр или список жанров произведения."""
+        genre_list = title.genre.get_queryset()
+        genre_str = ''
+        for genre in genre_list:
+            genre_str += ', ' + genre.name
+        return genre_str.lstrip(', ')
+
+    @admin.display(description='Количество отзывов')
+    def count_reviews(self, title):
+        """Вычисляет количество отзывов на произведение."""
+        return title.reviews.count()
+
+    @admin.display(description='Рейтинг')
+    def get_rating(self, title):
+        """Вычисляет рейтинг произведения."""
+        return round(title.rating)
 
 
 @admin.register(GenreTitle)
@@ -81,6 +83,7 @@ class GenreTitleAdmin(admin.ModelAdmin):
     search_fields = ('title',)
 
 
+@admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):
     list_display = ('pk',
                     'title',
@@ -94,6 +97,7 @@ class ReviewAdmin(admin.ModelAdmin):
     list_editable = ('text', 'author', 'score')
 
 
+@admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
     list_display = ('pk',
                     'text',
@@ -106,6 +110,4 @@ class CommentAdmin(admin.ModelAdmin):
     list_editable = ('text', 'author')
 
 
-admin.site.register(Comment, CommentAdmin)
-admin.site.register(Review, ReviewAdmin)
 admin.site.empty_value_display = 'значение отсутствует'
