@@ -1,94 +1,84 @@
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
-
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, permissions, status, viewsets
-from rest_framework.decorators import action
-from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework_simplejwt.tokens import AccessToken
-
+from rest_framework.response import Response
+from rest_framework import filters, permissions, status
 from reviews.models import Title, Category, Genre, Review
 from .filters import TitleFilter
-from .mixins import PutExclude, ListCreateDestroyViewSet
-from .serializers import (
-    SignupSerializer, TokenSerializer, UserSerializer, TitleSerializer,
-    TitleGETSerializer, CategorySerializer, GenreSerializer,
-    ReviewSerializer, CommentSerializer, MeSerializer
-)
-from .permissions import OwnerOrAdmin, ReadonlyOrAdmin, ReadonlyOrOwnerOrStaff
-from .email_code import send_confirmation_code, generate_code
-
+from .mixins import (CreateListViewSet, RetrieveUpdateDeleteViewSet,
+                     PutExclude, ListCreateDestroyViewSet)
+from .serializers import (SignupSerializer, TokenSerializer,
+                          UserSerializer, TitleSerializer,
+                          TitleGETSerializer, CategorySerializer,
+                          GenreSerializer, ReviewSerializer, CommentSerializer)
+from .permissions import IsAdmin, ReadonlyOrAdmin, ReadonlyOrOwnerOrStaff
+from .utils import send_confirmation_code
 
 User = get_user_model()
 
 
 class SignupAPIView(APIView):
-    """APIView для регистрации пользователей."""
-
     permission_classes = (permissions.AllowAny,)
 
     def post(self, request):
+        email = request.data.get('email')
+        username = request.data.get('username')
+        user = User.objects.filter(email=email).first()
+        if user and username == user.username:
+            send_confirmation_code(user, email)
+            return Response({'email': email, 'username': username},
+                            status=status.HTTP_200_OK)
         serializer = SignupSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user, _ = User.objects.get_or_create(**serializer.validated_data)
-        confirmation_code = generate_code()
-        user.confirmation_code = confirmation_code
-        user.save()
-        send_confirmation_code(
-            email=user.email,
-            confirmation_code=confirmation_code
-        )
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class TokenAPIView(APIView):
-    """APIView для получения токена"""
-
     permission_classes = (permissions.AllowAny,)
 
     def post(self, request):
         serializer = TokenSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        confirmation_code = serializer.validated_data.get('confirmation_code')
-        username = serializer.validated_data.get('username')
-        user = get_object_or_404(User, username=username)
-        if confirmation_code == user.confirmation_code:
-            token = str(AccessToken.for_user(user))
-            return Response({'token': f'{token}'}, status=status.HTTP_200_OK)
-        return Response(
-            {'confirmation_code': ['Код не действителен']},
-            status=status.HTTP_400_BAD_REQUEST
-        )
+        if serializer.is_valid():
+            return Response(serializer.validated_data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class UserViewSet(viewsets.ModelViewSet):
-    """Вьюсет для работы с пользователями"""
+class MeAPIView(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
 
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = (OwnerOrAdmin, )
-    filter_backends = (filters.SearchFilter, )
-    search_fields = ('username', )
-    lookup_field = 'username'
-    http_method_names = ['get', 'post', 'patch', 'delete']
+    def get(self, request):
+        user = get_object_or_404(User, username=request.user.username)
+        serializer = UserSerializer(user, context={'request': request})
+        return Response(serializer.data)
 
-    @action(
-        methods=['get', 'patch'],
-        detail=False,
-        url_path='me',
-        permission_classes=(permissions.IsAuthenticated,)
-    )
-    def me(self, request):
-        user = get_object_or_404(User, username=self.request.user)
-        if request.method == 'GET':
-            serializer = MeSerializer(user)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        if request.method == 'PATCH':
-            serializer = MeSerializer(user, data=request.data, partial=True)
-            serializer.is_valid(raise_exception=True)
+    def patch(self, request):
+        user = get_object_or_404(User, username=request.user.username)
+        serializer = UserSerializer(
+            user, data=request.data,
+            partial=True,
+            context={'request': request})
+        if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UserViewSet(CreateListViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = (IsAdmin,)
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('username',)
+
+
+class UsernameViewSet(RetrieveUpdateDeleteViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = (IsAdmin,)
+    lookup_field = 'username'
 
 
 class TitleViewSet(PutExclude):
