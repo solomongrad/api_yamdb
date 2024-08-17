@@ -2,16 +2,12 @@ from rest_framework import permissions
 from rest_framework.permissions import SAFE_METHODS
 
 
-class OwnerOrAdmin(permissions.BasePermission):
-    """Проверка является ли пользователь владельцем или администратором."""
+class IsAdmin(permissions.BasePermission):
+    """Проверка на то, является ли пользователь администратором."""
 
     def has_permission(self, request, view):
         return (request.user.is_authenticated
                 and request.user.is_admin())
-
-    def has_object_permission(self, request, view, obj):
-        return (obj == request.user
-                or request.user.is_admin() or request.user.is_moderator())
 
 
 class ReadonlyOrAdmin(permissions.BasePermission):
@@ -33,5 +29,4 @@ class ReadonlyOrOwnerOrStaff(permissions.BasePermission):
         return (request.method in permissions.SAFE_METHODS
                 or request.user.is_authenticated
                 and (obj.author == request.user
-                     or request.user.is_admin()
-                     or request.user.is_moderator()))
+                     or request.user.is_admin_or_moderator()))

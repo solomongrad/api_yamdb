@@ -1,39 +1,29 @@
-from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.db import models
+from django.utils.translation import gettext_lazy as _
 
-from .validators import validate_username
-
-
-class UserRole(models.TextChoices):
-    USER = 'user', 'Пользователь'
-    MODERATOR = 'moderator', 'Модератор'
-    ADMIN = 'admin', 'Администратор'
+CHOICES = (
+    ('user', 'user'),
+    ('moderator', 'moderator'),
+    ('admin', 'admin'),
+)
 
 
 class User(AbstractUser):
     """Кастомная модель пользователя"""
-
-    username = models.CharField(
-        max_length=150,
-        unique=True,
-        validators=[validate_username,]
-    )
-    email = models.EmailField(unique=True)
+    email = models.EmailField(_('email address'), unique=True)
     bio = models.TextField('Биография', blank=True)
-    role = models.CharField(
-        max_length=max(len(role) for role in UserRole),
-        choices=UserRole.choices,
-        default=UserRole.USER,
-    )
+    role = models.TextField('Роль', default='user', choices=CHOICES)
     confirmation_code = models.TextField('Код подтверждения', blank=True)
 
     class Meta:
         verbose_name = 'пользователь'
         verbose_name_plural = 'Пользователи'
-        ordering = ('date_joined',)
+        ordering = ('id',)
 
     def is_admin(self):
         return self.is_superuser or self.role == 'admin'
 
-    def is_moderator(self):
-        return self.role == 'moderator'
+    def is_admin_or_moderator(self):
+        return (self.is_superuser or self.role == 'admin'
+                or self.role == 'moderator')

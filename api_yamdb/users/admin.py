@@ -1,20 +1,11 @@
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
+UserAdmin.fieldsets += (
+    ('Extra Fields', {'fields': ('bio', 'role')}),
+)
 
-@admin.register(User)
-class UserAdmin(admin.ModelAdmin):
-    list_display = (
-        'pk',
-        'username',
-        'email',
-        'first_name',
-        'last_name',
-        'bio',
-        'role'
-    )
-    list_editable = ('role',)
-    search_fields = ('username',)
-    list_display_links = ('username',)
+admin.site.register(User, UserAdmin)
