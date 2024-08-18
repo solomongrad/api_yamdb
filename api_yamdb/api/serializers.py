@@ -5,6 +5,7 @@ from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
 
 from reviews.models import Title, Category, Genre, Review, Comment
+from users.constants import MAX_LEGTH_USERNAME, MAX_LEGTH_EMAIL
 from users.validators import validate_username
 
 User = get_user_model()
@@ -13,9 +14,11 @@ User = get_user_model()
 class SignupSerializer(serializers.ModelSerializer):
     """Сериализатор для создания объекта класса User."""
 
-    email = serializers.EmailField(max_length=254, required=True)
+    email = serializers.EmailField(max_length=MAX_LEGTH_EMAIL, required=True)
     username = serializers.CharField(
-        max_length=150, required=True, validators=(validate_username,))
+        max_length=MAX_LEGTH_USERNAME,
+        required=True,
+        validators=(validate_username,))
 
     class Meta:
         model = User

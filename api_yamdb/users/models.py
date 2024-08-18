@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
+from .constants import MAX_LEGTH_USERNAME
 from .validators import validate_username
 
 
@@ -14,7 +15,7 @@ class User(AbstractUser):
     """Кастомная модель пользователя"""
 
     username = models.CharField(
-        max_length=150,
+        max_length=MAX_LEGTH_USERNAME,
         unique=True,
         validators=[validate_username,]
     )
