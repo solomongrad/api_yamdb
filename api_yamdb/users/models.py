@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 
 from .validators import validate_username
+from .constants import MAX_LENGTH_USERNAME
 
 
 class UserRole(models.TextChoices):
@@ -14,7 +15,7 @@ class User(AbstractUser):
     """Кастомная модель пользователя"""
 
     username = models.CharField(
-        max_length=150,
+        max_length=MAX_LENGTH_USERNAME,
         unique=True,
         validators=[validate_username,]
     )
