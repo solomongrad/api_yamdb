@@ -21,20 +21,17 @@ class User(AbstractUser):
     )
     email = models.EmailField(unique=True)
     bio = models.TextField('Биография', blank=True)
-    role = models.CharField(
-        max_length=max(len(role) for role in UserRole),
-        choices=UserRole.choices,
-        default=UserRole.USER,
-    )
+    role = models.TextField('Роль', default='user', choices=CHOICES)
     confirmation_code = models.TextField('Код подтверждения', blank=True)
 
     class Meta:
         verbose_name = 'пользователь'
         verbose_name_plural = 'Пользователи'
-        ordering = ('date_joined',)
+        ordering = ('id',)
 
     def is_admin(self):
         return self.is_superuser or self.role == 'admin'
 
-    def is_moderator(self):
-        return self.role == 'moderator'
+    def is_admin_or_moderator(self):
+        return (self.is_superuser or self.role == 'admin'
+                or self.role == 'moderator')
