@@ -1,6 +1,7 @@
 import random
 import string
 from django.core.mail import send_mail
+from api_yamdb.settings import EMAIL_HOST_USER
 
 
 def generate_code():
@@ -9,14 +10,12 @@ def generate_code():
     return result
 
 
-def send_confirmation_code(user, email):
-    confirmation_code = generate_code()
+def send_confirmation_code(email, confirmation_code):
+    """Oтправляет на почту пользователя код подтверждения."""
     send_mail(
         subject='Код подтверждения',
         message=f'Ваш код подтверждения: {confirmation_code}',
-        from_email='notification@yamdb.com',
-        recipient_list=[f'{email}'],
-        fail_silently=True,
+        from_email=EMAIL_HOST_USER,
+        recipient_list=(email,),
+        fail_silently=False,
     )
-    user.confirmation_code = confirmation_code
-    user.save()
