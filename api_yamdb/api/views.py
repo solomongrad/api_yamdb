@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 
 from django_filters.rest_framework import DjangoFilterBackend
@@ -93,13 +94,13 @@ class UserViewSet(viewsets.ModelViewSet):
 
 class TitleViewSet(PutExclude):
     """Вьюсет для создания объектов класса Title."""
-    queryset = Title.objects.all()
+    queryset = Title.objects.annotate(rating=Avg('reviews__score'))
     permission_classes = (ReadonlyOrAdmin,)
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TitleFilter
 
     def get_serializer_class(self):
-        if self.request.method == 'GET':
+        if self.request.method in permissions.SAFE_METHODS:
             return TitleGETSerializer
         return TitleSerializer
 
