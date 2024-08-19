@@ -118,6 +118,7 @@ class GenreViewSet(ListCreateDestroyViewSet):
 
 class ReviewViewSet(PutExclude):
     """Вьюсет для создания отзывов к произведениям."""
+
     serializer_class = ReviewSerializer
     permission_classes = (ReadonlyOrOwnerOrStaff,)
 
@@ -128,21 +129,23 @@ class ReviewViewSet(PutExclude):
         return self.get_title().reviews.all()
 
     def perform_create(self, serializer):
-        user = self.request.user
-        serializer.save(title=self.get_title(), author=user)
+        serializer.save(title=self.get_title(), author=self.request.user)
 
 
 class CommentViewSet(PutExclude):
     """Вьюсет для создания комментариев к отзывам."""
+
     serializer_class = CommentSerializer
     permission_classes = (ReadonlyOrOwnerOrStaff,)
 
     def get_review(self):
-        return get_object_or_404(Review, pk=self.kwargs.get('review_id'))
+        return get_object_or_404(
+            Review,
+            pk=self.kwargs.get('review_id'),
+            title=self.kwargs.get('title_id'))
 
     def get_queryset(self):
         return self.get_review().comments.all()
 
     def perform_create(self, serializer):
-        user = self.request.user
-        serializer.save(review=self.get_review(), author=user)
+        serializer.save(review=self.get_review(), author=self.request.user)

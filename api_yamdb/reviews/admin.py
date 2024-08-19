@@ -50,7 +50,7 @@ class TitleAdmin(admin.ModelAdmin):
     def get_rating(self, object):
         """Вычисляет рейтинг произведения."""
         rating = object.reviews.aggregate(average_score=Avg('score'))
-        if rating.get('average_score') == None:
+        if rating.get('average_score') is None:
             return None
         return round(rating.get('average_score'))
 
@@ -81,6 +81,7 @@ class GenreTitleAdmin(admin.ModelAdmin):
     search_fields = ('title',)
 
 
+@admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):
     list_display = ('pk',
                     'title',
@@ -94,6 +95,7 @@ class ReviewAdmin(admin.ModelAdmin):
     list_editable = ('text', 'author', 'score')
 
 
+@admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
     list_display = ('pk',
                     'text',
@@ -106,6 +108,4 @@ class CommentAdmin(admin.ModelAdmin):
     list_editable = ('text', 'author')
 
 
-admin.site.register(Comment, CommentAdmin)
-admin.site.register(Review, ReviewAdmin)
 admin.site.empty_value_display = 'значение отсутствует'
