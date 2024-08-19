@@ -88,7 +88,7 @@ class GenreTitle(models.Model):
 class Review(ReviewCommentModel):
     """Модель отзыва к произведению."""
 
-    score = models.PositiveBigIntegerField(
+    score = models.PositiveSmallIntegerField(
         'Оценка',
         validators=[
             MinValueValidator(
