@@ -5,9 +5,9 @@ from api_yamdb.settings import EMAIL_HOST_USER
 
 
 def generate_code():
+    """Генерирует код"""
     all_symbols = string.ascii_uppercase + string.digits
-    result = ''.join(random.choice(all_symbols) for _ in range(6))
-    return result
+    return (''.join(random.choice(all_symbols) for _ in range(6)))
 
 
 def send_confirmation_code(email, confirmation_code):

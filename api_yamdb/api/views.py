@@ -1,7 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
-
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, permissions, status, viewsets
 from rest_framework.decorators import action
@@ -44,7 +43,7 @@ class SignupAPIView(APIView):
 
 
 class TokenAPIView(APIView):
-    """APIView для получения токена"""
+    """APIView для получения токена."""
 
     permission_classes = (permissions.AllowAny,)
 
@@ -64,7 +63,7 @@ class TokenAPIView(APIView):
 
 
 class UserViewSet(viewsets.ModelViewSet):
-    """Вьюсет для работы с пользователями"""
+    """Вьюсет для работы с пользователями."""
 
     queryset = User.objects.all()
     serializer_class = UserSerializer

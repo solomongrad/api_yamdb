@@ -6,6 +6,8 @@ from .models import Title, Category, Genre, Comment, Review, GenreTitle
 
 @admin.register(Genre)
 class GenreAdmin(admin.ModelAdmin):
+    """Класс настройки админ зоны раздела жанров."""
+
     list_display = (
         'pk',
         'name',
@@ -18,6 +20,8 @@ class GenreAdmin(admin.ModelAdmin):
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
+    """Класс настройки админ зоны раздела категорий."""
+
     list_display = (
         'pk',
         'name',
@@ -30,6 +34,7 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Title)
 class TitleAdmin(admin.ModelAdmin):
+    """Класс настройки админ зоны раздела произведений."""
 
     list_display = (
         'pk',
@@ -48,6 +53,7 @@ class TitleAdmin(admin.ModelAdmin):
     ordering = ('pk',)
 
     def get_queryset(self, request):
+        """Получает все объекты произведения и связанных с ним объектов."""
         return Title.objects.all().select_related(
             'category'
         ).prefetch_related('genre').annotate(rating=Avg('reviews__score'))
@@ -74,6 +80,7 @@ class TitleAdmin(admin.ModelAdmin):
 
 @admin.register(GenreTitle)
 class GenreTitleAdmin(admin.ModelAdmin):
+    """Класс настройки админ зоны раздела связывающего жанры и произведения."""
     list_display = (
         'pk',
         'genre',
@@ -85,6 +92,7 @@ class GenreTitleAdmin(admin.ModelAdmin):
 
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):
+    """Класс настройки админ зоны раздела отзывов."""
     list_display = ('pk',
                     'title',
                     'text',
@@ -99,6 +107,7 @@ class ReviewAdmin(admin.ModelAdmin):
 
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
+    """Класс настройки админ зоны раздела комментариев."""
     list_display = ('pk',
                     'text',
                     'review',
