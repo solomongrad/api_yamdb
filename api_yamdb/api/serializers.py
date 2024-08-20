@@ -1,5 +1,4 @@
 from django.contrib.auth import get_user_model
-from django.db.models import Avg
 
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
