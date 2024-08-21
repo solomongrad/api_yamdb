@@ -30,12 +30,9 @@ class Title(models.Model):
         max_length=256,
         verbose_name='Название'
     )
-    year = models.IntegerField(
+    year = models.SmallIntegerField(
         'Год выпуска',
         validators=[
-            MinValueValidator(0,
-                              message=('Значение года выпуска не может '
-                                       'быть отрицательным')),
             MaxValueValidator(int(datetime.now().year),
                               message=('Значение года выпуска не может быть '
                                        'больше текущего года'))
