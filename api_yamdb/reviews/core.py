@@ -4,7 +4,7 @@ from users.models import User
 
 
 class ReviewCommentModel(models.Model):
-    "Абмтрактный класс для Комментов и Отзывов"
+    "Абстрактный класс для Комментов и Отзывов"
 
     text = models.TextField(verbose_name='Текст')
     author = models.ForeignKey(User,
@@ -20,3 +20,16 @@ class ReviewCommentModel(models.Model):
 
     def __str__(self):
         return self.text[:15]
+
+
+class CategoryGenreModel(models.Model):
+    """Абстрактный класс для Жанров и Категорий."""
+    name = models.CharField(max_length=256, verbose_name='Название')
+    slug = models.SlugField(unique=True, max_length=50, verbose_name='slug')
+
+    class Meta:
+        abstract = True
+        ordering = ('name',)
+
+    def __str__(self):
+        return self.name

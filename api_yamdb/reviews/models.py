@@ -4,38 +4,24 @@ from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
-from .core import ReviewCommentModel
+from .core import ReviewCommentModel, CategoryGenreModel
 from .constants import MAX_SCORE_VALUE, MIN_SCORE_VALUE
 
 User = get_user_model()
 
 
-class Genre(models.Model):
+class Genre(CategoryGenreModel):
     """Модель жанров для произведений."""
-    name = models.CharField(max_length=256, verbose_name='Название')
-    slug = models.SlugField(unique=True, verbose_name='slug')
-
     class Meta:
         verbose_name = 'Жанр'
         verbose_name_plural = 'Жанры'
-        ordering = ('name',)
-
-    def __str__(self):
-        return self.name
 
 
-class Category(models.Model):
+class Category(CategoryGenreModel):
     """Модель категорий для произведений."""
-    name = models.CharField(max_length=256, verbose_name='Название')
-    slug = models.SlugField(unique=True, verbose_name='slug')
-
     class Meta:
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
-        ordering = ('name',)
-
-    def __str__(self):
-        return self.name
 
 
 class Title(models.Model):

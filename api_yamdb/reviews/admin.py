@@ -54,11 +54,11 @@ class TitleAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         """Получает все объекты произведения и связанных с ним объектов."""
-        return Title.objects.all().select_related(
+        return super().get_queryset(request).select_related(
             'category'
         ).prefetch_related('genre').annotate(rating=Avg('reviews__score'))
 
-    @admin.display(description='Жанр/ы произведения')
+    @admin.display(description='Жанр/ы')
     def get_genre(self, title):
         """Получает жанр или список жанров произведения."""
         genre_list = title.genre.get_queryset()
@@ -75,6 +75,8 @@ class TitleAdmin(admin.ModelAdmin):
     @admin.display(description='Рейтинг')
     def get_rating(self, title):
         """Вычисляет рейтинг произведения."""
+        if title.rating is None:
+            return 5
         return round(title.rating)
 
 
