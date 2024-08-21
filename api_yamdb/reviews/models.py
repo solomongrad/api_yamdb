@@ -1,11 +1,10 @@
-from datetime import datetime
-
 from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 from .core import ReviewCommentModel, CategoryGenreModel
-from .constants import MAX_SCORE_VALUE, MIN_SCORE_VALUE
+from .constants import MAX_SCORE_VALUE, MIN_SCORE_VALUE, NAME_MAX_LENGTH
+from .modelfunc import current_year_definition
 
 User = get_user_model()
 
@@ -27,21 +26,19 @@ class Category(CategoryGenreModel):
 class Title(models.Model):
     """Модель произведений."""
     name = models.CharField(
-        max_length=256,
+        max_length=NAME_MAX_LENGTH,
         verbose_name='Название'
     )
     year = models.SmallIntegerField(
         'Год выпуска',
         validators=[
-            MaxValueValidator(int(datetime.now().year),
+            MaxValueValidator(current_year_definition,
                               message=('Значение года выпуска не может быть '
                                        'больше текущего года'))
         ]
     )
     description = models.TextField(blank=True, verbose_name='Описание')
-    genre = models.ManyToManyField(Genre,
-                                   through='GenreTitle',
-                                   verbose_name='жанр')
+    genre = models.ManyToManyField(Genre, verbose_name='жанр')
     category = models.ForeignKey(Category, on_delete=models.SET_NULL,
                                  null=True, verbose_name='Категория')
 
@@ -52,20 +49,6 @@ class Title(models.Model):
 
     def __str__(self):
         return self.name
-
-
-class GenreTitle(models.Model):
-    """Модель для связывания жанров и произведений."""
-    genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
-    title = models.ForeignKey(Title, on_delete=models.CASCADE)
-
-    class Meta:
-        verbose_name = 'Соотношение жанра с произведением'
-        verbose_name_plural = 'Соотношение жанров с произведениями'
-        ordering = ('id',)
-
-    def __str__(self):
-        return f'жанр/ы произведения "{self.title}": {self.genre}'
 
 
 class Review(ReviewCommentModel):

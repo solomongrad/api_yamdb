@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.db.models import Avg
 
-from .models import Title, Category, Genre, Comment, Review, GenreTitle
+from .models import Title, Category, Genre, Comment, Review
 
 
 @admin.register(Genre)
@@ -16,6 +16,7 @@ class GenreAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
     list_filter = ('name',)
     search_fields = ('name',)
+    ordering = ('pk',)
 
 
 @admin.register(Category)
@@ -30,6 +31,7 @@ class CategoryAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
     list_filter = ('name',)
     search_fields = ('name',)
+    ordering = ('pk',)
 
 
 @admin.register(Title)
@@ -80,18 +82,6 @@ class TitleAdmin(admin.ModelAdmin):
         return round(title.rating)
 
 
-@admin.register(GenreTitle)
-class GenreTitleAdmin(admin.ModelAdmin):
-    """Класс настройки админ зоны раздела связывающего жанры и произведения."""
-    list_display = (
-        'pk',
-        'genre',
-        'title',
-    )
-    list_filter = ('genre',)
-    search_fields = ('title',)
-
-
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):
     """Класс настройки админ зоны раздела отзывов."""
@@ -105,6 +95,8 @@ class ReviewAdmin(admin.ModelAdmin):
     search_fields = ('title__name', 'text')
     list_filter = ('title',)
     list_editable = ('text', 'author', 'score')
+    list_per_page = 20
+    ordering = ('pk',)
 
 
 @admin.register(Comment)
@@ -119,6 +111,8 @@ class CommentAdmin(admin.ModelAdmin):
     search_fields = ('text', 'review__text')
     list_filter = ('review',)
     list_editable = ('text', 'author')
+    list_per_page = 20
+    ordering = ('pk',)
 
 
 admin.site.empty_value_display = 'значение отсутствует'

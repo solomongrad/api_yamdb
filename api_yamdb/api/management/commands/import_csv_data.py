@@ -10,7 +10,6 @@ from reviews.models import (
     Category,
     Comment,
     Genre,
-    GenreTitle,
     Review,
     Title
 )
@@ -25,7 +24,7 @@ class Command(BaseCommand):
         'category': Category,
         'genre': Genre,
         'titles': Title,
-        'genre_title': GenreTitle,
+        'genre_title': Title.genre.through,
         'users': User,
         'review': Review,
         'comments': Comment,
@@ -47,7 +46,7 @@ class Command(BaseCommand):
             with (open(csv_path, encoding='utf-8')) as file:
                 return list(csv.reader(file))
         except FileNotFoundError:
-            print(f'Файл {csv_file} не найден.')
+            self.stdout.write(f'Файл {csv_file} не найден.')
 
     def change_foreign_values(self, data_csv):
         """Изменяет значения полей типа ForeignKey."""
@@ -70,12 +69,14 @@ class Command(BaseCommand):
                 table = class_name(**data_csv)
                 table.save()
             except (ValueError, IntegrityError) as error:
-                print(f'Ошибка в загружаемых данных. {error}. '
-                      f'Таблица {class_name.__qualname__} не загружена.')
+                self.stdout.write(
+                    f'Ошибка в загружаемых данных. {error}. '
+                    f'Таблица {class_name.__qualname__} не загружена.'
+                )
                 break
-        print(f'Таблица {class_name.__qualname__} загружена.')
+        self.stdout.write(f'Таблица {class_name.__qualname__} загружена.')
 
     def handle(self, *args, **options):
         for key, value in self.FILES_CLASSES.items():
-            print(f'Загрузка таблицы {value.__qualname__}')
+            self.stdout.write(f'Загрузка таблицы {value.__qualname__}')
             self.load_csv(key, value)
