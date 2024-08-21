@@ -1,10 +1,11 @@
 from django.db import models
 
 from users.models import User
+from .constants import SYMBOLS_TO_SHOW
 
 
 class ReviewCommentModel(models.Model):
-    "Абмтрактный класс для Комментов и Отзывов"
+    "Абстрактный класс для Комментов и Отзывов"
 
     text = models.TextField(verbose_name='Текст')
     author = models.ForeignKey(User,
@@ -12,11 +13,12 @@ class ReviewCommentModel(models.Model):
                                verbose_name='автор')
     pub_date = models.DateTimeField(
         'Дата публикации',
-        auto_now_add=True)
+        auto_now_add=True
+    )
 
     class Meta:
         abstract = True
         ordering = ('-pub_date',)
 
     def __str__(self):
-        return self.text[:15]
+        return self.text[:SYMBOLS_TO_SHOW]
