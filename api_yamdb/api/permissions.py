@@ -7,11 +7,11 @@ class OwnerOrAdmin(permissions.BasePermission):
 
     def has_permission(self, request, view):
         return (request.user.is_authenticated
-                and request.user.is_admin())
+                and request.user.is_admin)
 
     def has_object_permission(self, request, view, obj):
         return (obj == request.user
-                or request.user.is_admin() or request.user.is_moderator())
+                or request.user.is_admin or request.user.is_moderator)
 
 
 class ReadonlyOrAdmin(permissions.BasePermission):
@@ -20,7 +20,7 @@ class ReadonlyOrAdmin(permissions.BasePermission):
     def has_permission(self, request, view):
         return (request.method in permissions.SAFE_METHODS
                 or request.user.is_authenticated
-                and request.user.is_admin())
+                and request.user.is_admin)
 
 
 class ReadonlyOrOwnerOrStaff(permissions.BasePermission):
@@ -33,5 +33,5 @@ class ReadonlyOrOwnerOrStaff(permissions.BasePermission):
         return (request.method in permissions.SAFE_METHODS
                 or request.user.is_authenticated
                 and (obj.author == request.user
-                     or request.user.is_admin()
-                     or request.user.is_moderator()))
+                     or request.user.is_admin
+                     or request.user.is_moderator))

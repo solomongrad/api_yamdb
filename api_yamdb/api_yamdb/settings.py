@@ -106,7 +106,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 
 EMAIL_FILE_PATH = BASE_DIR / 'sent_emails'
 
-EMAIL_HOST_USER = 'notification@yamdb.com'
+DEFAULT_FROM_EMAIL = 'notification@yamdb.com'
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
