@@ -2,6 +2,7 @@ from django.db import models
 
 from .constants import NAME_MAX_LENGTH, SLUG_MAX_LENGTH
 from users.models import User
+from .constants import SYMBOLS_TO_SHOW
 
 
 class ReviewCommentModel(models.Model):
@@ -13,7 +14,8 @@ class ReviewCommentModel(models.Model):
                                verbose_name='автор')
     pub_date = models.DateTimeField(
         'Дата публикации',
-        auto_now_add=True)
+        auto_now_add=True
+    )
 
     class Meta:
         abstract = True
@@ -35,3 +37,4 @@ class CategoryGenreModel(models.Model):
 
     def __str__(self):
         return self.name
+        return self.text[:SYMBOLS_TO_SHOW]

@@ -70,8 +70,7 @@ class Review(ReviewCommentModel):
     title = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,
-        verbose_name='произведение',
-        null=True
+        verbose_name='произведение'
     )
 
     class Meta(ReviewCommentModel.Meta):
