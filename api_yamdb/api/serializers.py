@@ -1,11 +1,16 @@
 from django.contrib.auth import get_user_model
+from django.shortcuts import get_object_or_404
 
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
+from rest_framework_simplejwt.tokens import AccessToken
 
 from reviews.models import Title, Category, Genre, Review, Comment
-from users.constants import MAX_LEGTH_USERNAME, MAX_LEGTH_EMAIL
+from users.constants import (
+    MAX_LEGTH_USERNAME, MAX_LEGTH_EMAIL, LEGTH_CONFIRMATION_CODE
+)
 from users.validators import validate_username
+from .email_code import send_confirmation_code, generate_code
 
 User = get_user_model()
 
@@ -23,6 +28,18 @@ class SignupSerializer(serializers.ModelSerializer):
         model = User
         fields = ('username', 'email')
 
+    def create(self, validated_data):
+        user, _ = User.objects.get_or_create(**validated_data)
+        confirmation_code = generate_code()
+        user.confirmation_code = confirmation_code
+        user.save()
+        send_confirmation_code(
+            email=user.email,
+            confirmation_code=confirmation_code
+        )
+
+        return user
+
     def validate(self, data):
         if User.objects.filter(username=data.get('username'),
                                email=data.get('email')).exists():
@@ -37,14 +54,32 @@ class SignupSerializer(serializers.ModelSerializer):
 
 
 class TokenSerializer(serializers.Serializer):
-    """Сериализатор проверки кода подтверждения"""
+    """Сериализатор проверки кода подтверждения."""
 
-    username = serializers.CharField(max_length=150, required=True)
-    confirmation_code = serializers.CharField(max_length=6, required=True)
+    username = serializers.CharField(
+        max_length=MAX_LEGTH_USERNAME,
+        required=True
+    )
+    confirmation_code = serializers.CharField(
+        max_length=LEGTH_CONFIRMATION_CODE,
+        required=True
+    )
 
     class Meta:
         model = User
         fields = ('username', 'confirmation_code')
+
+    def validate(self, data):
+        username = data.get('username')
+        confirmation_code = data.get('confirmation_code')
+        user = get_object_or_404(User, username=username)
+        if confirmation_code != user.confirmation_code:
+            raise serializers.ValidationError(
+                {'confirmation_code': 'Код не действителен'}
+            )
+        token = str(AccessToken.for_user(user))
+        data['token'] = token
+        return data
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -65,18 +100,8 @@ class UserSerializer(serializers.ModelSerializer):
 class MeSerializer(serializers.ModelSerializer):
     """Сериализатор для запросов пути /me"""
 
-    role = serializers.CharField(read_only=True)
-
-    class Meta:
-        model = User
-        fields = (
-            'username',
-            'email',
-            'first_name',
-            'last_name',
-            'bio',
-            'role'
-        )
+    class Meta(UserSerializer.Meta):
+        extra_kwargs = {'role': {'read_only': True}}
 
 
 class CategorySerializer(serializers.ModelSerializer):

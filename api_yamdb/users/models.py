@@ -1,23 +1,23 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
-from .constants import MAX_LEGTH_USERNAME
+from .constants import MAX_LEGTH_USERNAME, USER, MODERATOR, ADMIN
 from .validators import validate_username
 
 
 class UserRole(models.TextChoices):
-    USER = 'user', 'Пользователь'
-    MODERATOR = 'moderator', 'Модератор'
-    ADMIN = 'admin', 'Администратор'
+    USER = USER, 'Пользователь'
+    MODERATOR = MODERATOR, 'Модератор'
+    ADMIN = ADMIN, 'Администратор'
 
 
 class User(AbstractUser):
-    """Кастомная модель пользователя"""
+    """Кастомная модель пользователя."""
 
     username = models.CharField(
         max_length=MAX_LEGTH_USERNAME,
         unique=True,
-        validators=[validate_username]
+        validators=(validate_username,)
     )
     email = models.EmailField(unique=True)
     bio = models.TextField('Биография', blank=True)
@@ -33,8 +33,10 @@ class User(AbstractUser):
         verbose_name_plural = 'Пользователи'
         ordering = ('date_joined',)
 
+    @property
     def is_admin(self):
-        return self.is_superuser or self.role == 'admin'
+        return self.is_superuser or self.role == ADMIN
 
+    @property
     def is_moderator(self):
-        return self.role == 'moderator'
+        return self.role == MODERATOR

@@ -1,21 +1,29 @@
 import random
 import string
+
+from django.conf import settings
 from django.core.mail import send_mail
-from api_yamdb.settings import EMAIL_HOST_USER
+
+from users.constants import LEGTH_CONFIRMATION_CODE
 
 
 def generate_code():
-    """Генерирует код"""
+    """Генерация кода подтверждения."""
+
     all_symbols = string.ascii_uppercase + string.digits
-    return (''.join(random.choice(all_symbols) for _ in range(6)))
+    return ''.join(
+        random.choice(all_symbols)
+        for _ in range(LEGTH_CONFIRMATION_CODE)
+    )
 
 
 def send_confirmation_code(email, confirmation_code):
     """Oтправляет на почту пользователя код подтверждения."""
+
     send_mail(
         subject='Код подтверждения',
         message=f'Ваш код подтверждения: {confirmation_code}',
-        from_email=EMAIL_HOST_USER,
+        from_email=settings.DEFAULT_FROM_EMAIL,
         recipient_list=(email,),
         fail_silently=False,
     )

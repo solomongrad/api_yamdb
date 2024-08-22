@@ -6,7 +6,6 @@ from rest_framework import filters, permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework_simplejwt.tokens import AccessToken
 
 from reviews.models import Title, Category, Genre, Review
 from .filters import TitleFilter
@@ -17,8 +16,6 @@ from .serializers import (
     ReviewSerializer, CommentSerializer, MeSerializer
 )
 from .permissions import OwnerOrAdmin, ReadonlyOrAdmin, ReadonlyOrOwnerOrStaff
-from .email_code import send_confirmation_code, generate_code
-
 
 User = get_user_model()
 
@@ -31,14 +28,7 @@ class SignupAPIView(APIView):
     def post(self, request):
         serializer = SignupSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        user, _ = User.objects.get_or_create(**serializer.validated_data)
-        confirmation_code = generate_code()
-        user.confirmation_code = confirmation_code
-        user.save()
-        send_confirmation_code(
-            email=user.email,
-            confirmation_code=confirmation_code
-        )
+        serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -50,16 +40,8 @@ class TokenAPIView(APIView):
     def post(self, request):
         serializer = TokenSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        confirmation_code = serializer.validated_data.get('confirmation_code')
-        username = serializer.validated_data.get('username')
-        user = get_object_or_404(User, username=username)
-        if confirmation_code == user.confirmation_code:
-            token = str(AccessToken.for_user(user))
-            return Response({'token': f'{token}'}, status=status.HTTP_200_OK)
-        return Response(
-            {'confirmation_code': ['Код не действителен']},
-            status=status.HTTP_400_BAD_REQUEST
-        )
+        token = serializer.validated_data.get('token')
+        return Response({'token': f'{token}'}, status=status.HTTP_200_OK)
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -71,24 +53,28 @@ class UserViewSet(viewsets.ModelViewSet):
     filter_backends = (filters.SearchFilter, )
     search_fields = ('username', )
     lookup_field = 'username'
-    http_method_names = ['get', 'post', 'patch', 'delete']
+    http_method_names = ('get', 'post', 'patch', 'delete')
 
     @action(
-        methods=['get', 'patch'],
+        methods=('get',),
         detail=False,
         url_path='me',
         permission_classes=(permissions.IsAuthenticated,)
     )
     def me(self, request):
-        user = get_object_or_404(User, username=self.request.user)
-        if request.method == 'GET':
-            serializer = MeSerializer(user)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        if request.method == 'PATCH':
-            serializer = MeSerializer(user, data=request.data, partial=True)
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
+        serializer = MeSerializer(request.user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @me.mapping.patch
+    def patch_me(self, request, pk=None):
+        serializer = MeSerializer(
+            request.user,
+            data=request.data,
+            partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class TitleViewSet(PutExclude):
