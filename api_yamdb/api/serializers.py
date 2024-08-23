@@ -1,6 +1,5 @@
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
-
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
 from rest_framework_simplejwt.tokens import AccessToken
@@ -15,7 +14,7 @@ from .email_code import send_confirmation_code, generate_code
 User = get_user_model()
 
 
-class SignupSerializer(serializers.ModelSerializer):
+class SignupSerializer(serializers.Serializer):
     """Сериализатор для создания объекта класса User."""
 
     email = serializers.EmailField(max_length=MAX_LEGTH_EMAIL, required=True)
@@ -73,13 +72,20 @@ class TokenSerializer(serializers.Serializer):
         username = data.get('username')
         confirmation_code = data.get('confirmation_code')
         user = get_object_or_404(User, username=username)
-        if confirmation_code != user.confirmation_code:
+        if (confirmation_code == ''
+                or confirmation_code != user.confirmation_code):
             raise serializers.ValidationError(
                 {'confirmation_code': 'Код не действителен'}
             )
-        token = str(AccessToken.for_user(user))
-        data['token'] = token
         return data
+
+    def create(self, validated_data):
+        username = validated_data.get('username')
+        user = get_object_or_404(User, username=username)
+        user.confirmation_code = ''
+        user.save()
+        token = str(AccessToken.for_user(user))
+        return token
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -101,7 +107,7 @@ class MeSerializer(serializers.ModelSerializer):
     """Сериализатор для запросов пути /me"""
 
     class Meta(UserSerializer.Meta):
-        extra_kwargs = {'role': {'read_only': True}}
+        read_only_fields = ('role',)
 
 
 class CategorySerializer(serializers.ModelSerializer):
