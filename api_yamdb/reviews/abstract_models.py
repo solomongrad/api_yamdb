@@ -26,7 +26,8 @@ class ReviewCommentModel(models.Model):
 
 class CategoryGenreModel(models.Model):
     """Абстрактный класс для Жанров и Категорий."""
-    name = models.CharField(max_length=NAME_MAX_LENGTH, verbose_name='Название')
+    name = models.CharField(max_length=NAME_MAX_LENGTH,
+                            verbose_name='Название')
     slug = models.SlugField(unique=True, max_length=SLUG_MAX_LENGTH,
                             verbose_name='slug')
 
