@@ -5,7 +5,7 @@ from users.models import User
 
 
 class ReviewCommentModel(models.Model):
-    "Абстрактный класс для Комментов и Отзывов"
+    "Абстрактный класс для Комментов и Отзывов."
 
     text = models.TextField(verbose_name='Текст')
     author = models.ForeignKey(User,
