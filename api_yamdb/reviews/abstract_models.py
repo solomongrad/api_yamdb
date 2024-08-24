@@ -1,6 +1,6 @@
 from django.db import models
 
-from .constants import NAME_MAX_LENGTH, SLUG_MAX_LENGTH
+from .constants import NAME_MAX_LENGTH, SLUG_MAX_LENGTH, SYMBOLS_TO_SHOW
 from users.models import User
 
 
@@ -21,7 +21,7 @@ class ReviewCommentModel(models.Model):
         ordering = ('-pub_date',)
 
     def __str__(self):
-        return self.text[:15]
+        return self.text[:SYMBOLS_TO_SHOW]
 
 
 class CategoryGenreModel(models.Model):
@@ -36,4 +36,4 @@ class CategoryGenreModel(models.Model):
         ordering = ('name',)
 
     def __str__(self):
-        return self.name
+        return self.name[:SYMBOLS_TO_SHOW]

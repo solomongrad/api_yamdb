@@ -3,7 +3,8 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 from .abstract_models import ReviewCommentModel, CategoryGenreModel
-from .constants import MAX_SCORE_VALUE, MIN_SCORE_VALUE, NAME_MAX_LENGTH
+from .constants import (MAX_SCORE_VALUE, MIN_SCORE_VALUE,
+                        NAME_MAX_LENGTH, SYMBOLS_TO_SHOW)
 from .validators import current_year_definition
 
 User = get_user_model()
@@ -31,11 +32,11 @@ class Title(models.Model):
     )
     year = models.SmallIntegerField(
         'Год выпуска',
-        validators=[
+        validators=(
             MaxValueValidator(current_year_definition,
                               message=('Значение года выпуска не может быть '
-                                       'больше текущего года'))
-        ]
+                                       'больше текущего года')),
+        )
     )
     description = models.TextField(blank=True, verbose_name='Описание')
     genre = models.ManyToManyField(Genre, verbose_name='жанр')
@@ -48,7 +49,7 @@ class Title(models.Model):
         ordering = ('name',)
 
     def __str__(self):
-        return self.name
+        return self.name[:SYMBOLS_TO_SHOW]
 
 
 class Review(ReviewCommentModel):
@@ -56,7 +57,7 @@ class Review(ReviewCommentModel):
 
     score = models.PositiveSmallIntegerField(
         'Оценка',
-        validators=[
+        validators=(
             MinValueValidator(
                 MIN_SCORE_VALUE,
                 message='Введенная оценка ниже допустимой'
@@ -65,7 +66,7 @@ class Review(ReviewCommentModel):
                 MAX_SCORE_VALUE,
                 message='Введенная оценка выше допустимой'
             )
-        ]
+        )
     )
     title = models.ForeignKey(
         Title,
