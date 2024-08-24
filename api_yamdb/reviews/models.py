@@ -2,9 +2,9 @@ from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
-from .core import ReviewCommentModel, CategoryGenreModel
+from .abstract_models import ReviewCommentModel, CategoryGenreModel
 from .constants import MAX_SCORE_VALUE, MIN_SCORE_VALUE, NAME_MAX_LENGTH
-from .modelfunc import current_year_definition
+from .validators import current_year_definition
 
 User = get_user_model()
 

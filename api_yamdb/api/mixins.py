@@ -6,7 +6,7 @@ from .permissions import ReadonlyOrAdmin
 class PutExclude(viewsets.ModelViewSet):
     """Вьюсет предоставляющий доступ к GET, POST, PATCH И DELETE запросам."""
 
-    http_method_names = ("get", "post", "patch", "delete",)
+    http_method_names = ('get', 'post', 'patch', 'delete',)
 
 
 class ListCreateDestroyViewSet(mixins.ListModelMixin,
